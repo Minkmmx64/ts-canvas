@@ -12,7 +12,6 @@ export interface ICanvasSystemOptions<T extends AspectRatio> {
 
 export interface ICanvasOptions {
   background?: string;
-  
 }
 
 export interface ITransform {

@@ -9,7 +9,7 @@ const System = CanvasSystem.createCanvas(canvas, {
     height: window.innerHeight - 50
   },
   canvasOptions: {
-    background: "#007aff80"
+    background: "rgba(200,200,200,0.1)"
   }
 });
 

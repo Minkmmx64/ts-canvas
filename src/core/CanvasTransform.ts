@@ -33,6 +33,25 @@ export class CanvasTransform {
 
   public addScale(diff: number) {
     this.transform.scale += diff;
+    this.transform.scale = Math.max(
+      this.canvasSystem.const.TRANSFORM_SCALE_MIN,
+      Math.min(
+        this.canvasSystem.const.TRANSFORM_SCALE_MAX, this.transform.scale
+      ))
     this.canvasSystem.render();
+  }
+
+  public getReTransformPoint(point: Point2D): Point2D {
+    return {
+      x: (point.x - this.transform.translation.x) / this.transform.scale,
+      y: (point.y - this.transform.translation.y) / this.transform.scale
+    }
+  }
+
+  public getTransformPoint(point: Point2D): Point2D {
+    return {
+      x: (point.x + this.transform.translation.x) * this.transform.scale,
+      y: (point.y + this.transform.translation.y) * this.transform.scale
+    }
   }
 }

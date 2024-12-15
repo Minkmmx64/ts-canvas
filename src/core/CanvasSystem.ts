@@ -1,6 +1,7 @@
 import { AspectRatio, ICanvasOptions, ICanvasSystemOptions, SizeIntoAspectRatio } from "../type/canvas.type";
 import { CanvasEventListener } from "./CanvasEventListener";
 import { CanvasTransform } from "./CanvasTransform";
+import { CavnasCoordinate } from "./CavnasCoordinate";
 
 export class CanvasSystem {
 
@@ -10,6 +11,15 @@ export class CanvasSystem {
 
   public canvasEventListener !: CanvasEventListener;
   public canvasTransform !: CanvasTransform;
+  public cavnasCoordinate !: CavnasCoordinate;
+  public const = {
+    TRANSFORM_SCALE_STEP: 0.1,
+    TRANSFORM_SCALE_MAX: 5,
+    TRANSFORM_SCALE_MIN: 0.1,
+    GRID: {
+      SIZE: 100,
+    }
+  }
 
   private constructor(canvas: HTMLCanvasElement, options: ICanvasSystemOptions<AspectRatio>) {
     if (!canvas) throw new TypeError("canvas is not exist");
@@ -33,6 +43,7 @@ export class CanvasSystem {
     const { left, top } = canvas.getBoundingClientRect();
     this.canvasEventListener = new CanvasEventListener(this.node, { x: left, y: top }, this);
     this.canvasTransform = new CanvasTransform(this);
+    this.cavnasCoordinate = new CavnasCoordinate();
     this.render();
   }
 
@@ -55,7 +66,39 @@ export class CanvasSystem {
   }
 
   private drawRule() {
-
+    const begin = { x: 0, y: 0 };
+    const end = { x: this.node.width, y: this.node.height };
+    const step = this.const.GRID.SIZE * this.canvasTransform.transform.scale;
+    const ctx = this.context;
+    const transform = this.canvasTransform.transform;
+    const diffx = transform.translation.x - Math.floor(transform.translation.x / step) * step;
+    const diffy = transform.translation.y - Math.floor(transform.translation.y / step) * step;
+    /**
+     * 原来绘制区域(0,0) => (w,h)
+     * 平移后只需要对 每一列，每一行间隔 step 取模 = {x: diffx, y: diffy}
+     * 绘制时只需要绘制相对于(0,0) => (w,h) 平移
+     * moveTo,lineTo 时只需要把绘制的点求逆与ctx transform 抵消就可以实现无限滚动
+     */
+    for (let i = begin.x; i <= end.x; i += step) {
+      ctx.beginPath();
+      ctx.strokeStyle = "#000000";
+      const lineBegin = this.canvasTransform.getReTransformPoint({ x: i + diffx, y: begin.y });
+      const lineEnd = this.canvasTransform.getReTransformPoint({ x: i + diffx, y: end.y });
+      ctx.moveTo(lineBegin.x, lineBegin.y);
+      ctx.lineTo(lineEnd.x, lineEnd.y);
+      ctx.stroke();
+      ctx.closePath();
+    }
+    for (let i = begin.y; i <= end.y; i += step) {
+      ctx.beginPath();
+      ctx.strokeStyle = "#000000";
+      const lineBegin = this.canvasTransform.getReTransformPoint({ x: begin.x, y: i + diffy });
+      const lineEnd = this.canvasTransform.getReTransformPoint({ x: end.x, y: i + diffy });
+      ctx.moveTo(lineBegin.x, lineBegin.y);
+      ctx.lineTo(lineEnd.x, lineEnd.y);
+      ctx.stroke();
+      ctx.closePath();
+    }
   }
 
 }

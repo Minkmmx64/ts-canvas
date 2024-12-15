@@ -38,6 +38,9 @@ export class CanvasEventListener {
       this.canvas.removeEventListener("mousemove", eventMouseMove);
     });
     this.canvas.addEventListener("wheel", eventWheel);
+    this.canvas.addEventListener("contextmenu", e => {
+      e.preventDefault();
+    })
   }
 
   private eventMouseDown(e: MouseEvent) {
@@ -61,5 +64,10 @@ export class CanvasEventListener {
 
   private eventWheel(e: WheelEvent) {
     console.log("wheel", e);
+    if (e.deltaY > 0) {
+      this.canvasSystem.canvasTransform.addScale(-this.canvasSystem.const.TRANSFORM_SCALE_STEP);
+    } else if (e.deltaY < 0) {
+      this.canvasSystem.canvasTransform.addScale(+this.canvasSystem.const.TRANSFORM_SCALE_STEP);
+    }
   }
 }
