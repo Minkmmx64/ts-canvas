@@ -3,7 +3,8 @@
 export default {
   input: "./src/index.ts",
   output: {
-    file: "./dist/bundle.js",
+    dir: "dist",
+    entryFileNames: "bundle.js",
     format: "esm",
     sourcemap: true,
   }
