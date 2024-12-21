@@ -22,9 +22,8 @@ export class CanvasTransform {
   }
 
   public addTranslation(diff: Point2D) {
-    this.transform.translation = coordinate.add(this.transform.translation, diff);
-    this.transform.translation.x = Math.min(this.boundary.width, Math.max(0, this.transform.translation.x));
-    this.transform.translation.y = Math.min(this.boundary.height, Math.max(0, this.transform.translation.y));
+    const translation = coordinate.add(this.transform.translation, diff);
+    this.transform.translation = this.hasBoundary(translation);
     this.canvasSystem.render();
   }
 
@@ -55,5 +54,17 @@ export class CanvasTransform {
       x: (point.x + this.transform.translation.x) * this.transform.scale,
       y: (point.y + this.transform.translation.y) * this.transform.scale
     }
+  }
+
+  //判断当前位移是否超出了边界
+  public hasBoundary(translation: Point2D): Point2D {
+    if (translation.x > 0) translation.x = 0;
+    if (translation.y > 0) translation.y = 0;
+    const gridSize = this.canvasSystem.const.GRID.SIZE * this.transform.scale;
+    const mx = (this.boundary.width - this.boundary.screenColumn) * gridSize;
+    const my = (this.boundary.height - this.boundary.screenRow) * gridSize;
+    if (translation.x < mx) translation.x = mx;
+    if (translation.y < my) translation.y = my;
+    return translation;
   }
 }
