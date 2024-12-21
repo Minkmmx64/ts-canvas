@@ -4,11 +4,8 @@ import { CanvasTools } from "./core/CanvasTools";
 const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 
 const System = CanvasSystem.createCanvas(canvas, {
-  aspect: "auto",
-  size: {
-    width: window.innerWidth - 50,
-    height: window.innerHeight - 50
-  },
+  aspect: 1,
+  size: window.innerWidth - 50, // 画布最大宽度，根据Grid Size 调整
   canvasOptions: {
     background: "rgba(200,200,200,0.1)"
   }

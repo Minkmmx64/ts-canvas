@@ -1,5 +1,5 @@
 import { coordinate } from "../math/algebra";
-import { ITransform } from "../type/canvas.type";
+import { BaseSizeOption, ITransform } from "../type/canvas.type";
 import { Point2D } from "../type/common.type";
 import { CanvasSystem } from "./CanvasSystem";
 
@@ -8,7 +8,7 @@ export class CanvasTransform {
 
   private canvasSystem !: CanvasSystem;
 
-  constructor(canvasSystem: CanvasSystem) {
+  constructor(canvasSystem: CanvasSystem, private boundary: { screenColumn: number, screenRow: number } & BaseSizeOption) {
     this.canvasSystem = canvasSystem;
     this.transform = {
       translation: { x: 0, y: 0 },
@@ -23,6 +23,8 @@ export class CanvasTransform {
 
   public addTranslation(diff: Point2D) {
     this.transform.translation = coordinate.add(this.transform.translation, diff);
+    this.transform.translation.x = Math.min(this.boundary.width, Math.max(0, this.transform.translation.x));
+    this.transform.translation.y = Math.min(this.boundary.height, Math.max(0, this.transform.translation.y));
     this.canvasSystem.render();
   }
 

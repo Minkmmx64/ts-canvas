@@ -40,26 +40,28 @@ export class CanvasEventListener {
     this.canvas.addEventListener("wheel", eventWheel);
     this.canvas.addEventListener("contextmenu", e => {
       e.preventDefault();
-    })
+    });
+    const eventTouchStart = this.eventTouchStart.bind(this);
+    const eventTouchMove = this.eventTouchMove.bind(this);
+    const eventTouchEnd = this.eventTouchEnd.bind(this);
+    this.canvas.addEventListener("touchstart", eventTouchStart);
+    this.canvas.addEventListener("touchmove", eventTouchMove);
+    this.canvas.addEventListener("touchend", eventTouchEnd);
   }
 
   private eventMouseDown(e: MouseEvent) {
-    this.begin = this.toCanvasScreenPoint({ x: e.clientX, y: e.clientY });
-    this.preMove = this.toCanvasScreenPoint({ x: e.clientX, y: e.clientY });
     console.log("mousedown", this.begin);
+    this.setMouseBegin(e.clientX, e.clientY);
   }
 
   private eventMouseMove(e: MouseEvent) {
-    this.move = this.toCanvasScreenPoint({ x: e.clientX, y: e.clientY });
-    const translation = coordinate.div(this.move, this.preMove);
-    this.canvasSystem.canvasTransform.addTranslation(translation);
-    this.preMove = this.toCanvasScreenPoint({ x: e.clientX, y: e.clientY });
     console.log("mousemove", this.move);
+    this.setMouseMove(e.clientX, e.clientY);
   }
 
   private eventMouseUp(e: MouseEvent) {
-    this.end = this.toCanvasScreenPoint({ x: e.clientX, y: e.clientY });
     console.log("mouseup", this.end);
+    this.setMouseEnd(e.clientX, e.clientY);
   }
 
   private eventWheel(e: WheelEvent) {
@@ -70,4 +72,50 @@ export class CanvasEventListener {
       this.canvasSystem.canvasTransform.addScale(+this.canvasSystem.const.TRANSFORM_SCALE_STEP);
     }
   }
+
+  private eventTouchStart(e: TouchEvent) {
+    console.log("touchstart", e);
+    e.preventDefault();
+    const { clientX, clientY } = e.touches[0];
+    this.setMouseBegin(clientX, clientY);
+  }
+
+  private eventTouchMove(e: TouchEvent) {
+    console.log("touchmove", e);
+    e.preventDefault();
+    const { clientX, clientY } = e.touches[0];
+    if (e.touches.length >= 2) {
+      const points = [...e.touches].map(_ => this.toCanvasScreenPoint({ x: _.clientX, y: _.clientY }));
+      console.log(points);
+    }
+    this.setMouseMove(clientX, clientY);
+  }
+
+  private eventTouchEnd(e: TouchEvent) {
+    console.log("touchend", e);
+    e.preventDefault();
+    const { clientX, clientY } = e.changedTouches[0];
+    this.setMouseEnd(clientX, clientY);
+  }
+
+  private setMouseBegin(x: number, y: number) {
+    this.begin = this.toCanvasScreenPoint({ x, y });
+    this.preMove = this.toCanvasScreenPoint({ x, y });
+  }
+
+  private setMouseMove(x: number, y: number) {
+    this.move = this.toCanvasScreenPoint({ x, y });
+    this.transform();
+    this.preMove = this.toCanvasScreenPoint({ x, y });
+  }
+
+  private setMouseEnd(x: number, y: number) {
+    this.end = this.toCanvasScreenPoint({ x, y });
+  }
+
+  private transform() {
+    const translation = coordinate.div(this.move, this.preMove);
+    this.canvasSystem.canvasTransform.addTranslation(translation);
+  }
+
 }

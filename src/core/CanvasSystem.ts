@@ -15,24 +15,31 @@ export class CanvasSystem {
   public const = {
     TRANSFORM_SCALE_STEP: 0.1,
     TRANSFORM_SCALE_MAX: 5,
-    TRANSFORM_SCALE_MIN: 0.1,
+    TRANSFORM_SCALE_MIN: 1,
     GRID: {
-      SIZE: 100,
-    }
+      SIZE: 10,
+    },
+    MAX_GRID_COLUMN: 20,//画布最大网格列数
+    MAX_GRID_ROW: 20,    //画布最大网格行数
   }
 
   private constructor(canvas: HTMLCanvasElement, options: ICanvasSystemOptions<AspectRatio>) {
     if (!canvas) throw new TypeError("canvas is not exist");
     const context = canvas.getContext("2d");
     if (!context) throw new TypeError("can not found CanvasRenderingContext2D");
+    let screenRow, screenColumn;  //画布基础可视宽高
     if (options.aspect === "auto") {
       const size = options.size as SizeIntoAspectRatio<"auto">;
-      canvas.width = size.width;
-      canvas.height = size.height;
+      screenRow = Math.floor(size.width / this.const.GRID.SIZE);
+      screenColumn = Math.floor(size.height / this.const.GRID.SIZE);
+      canvas.width = screenRow * this.const.GRID.SIZE;
+      canvas.height = screenColumn * this.const.GRID.SIZE;
     } else {
       const size = options.size as SizeIntoAspectRatio<number>;
-      canvas.width = size;
-      canvas.height = size / options.aspect;
+      screenRow = Math.floor(size / this.const.GRID.SIZE);
+      screenColumn = Math.floor((size / options.aspect) / this.const.GRID.SIZE);
+      canvas.width = screenRow * this.const.GRID.SIZE;
+      canvas.height = screenColumn * this.const.GRID.SIZE;
     }
     this.node = canvas;
     this.context = context;
@@ -42,7 +49,7 @@ export class CanvasSystem {
     canvas.style.background = this.canvasOptions.background ?? "#ffffff";
     const { left, top } = canvas.getBoundingClientRect();
     this.canvasEventListener = new CanvasEventListener(this.node, { x: left, y: top }, this);
-    this.canvasTransform = new CanvasTransform(this);
+    this.canvasTransform = new CanvasTransform(this, { screenColumn, screenRow, width: this.const.MAX_GRID_COLUMN, height: this.const.MAX_GRID_ROW });
     this.cavnasCoordinate = new CavnasCoordinate();
     this.render();
   }
