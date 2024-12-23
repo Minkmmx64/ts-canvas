@@ -5,8 +5,8 @@ import { CavnasCoordinate } from "./CavnasCoordinate";
 
 export class CanvasSystem {
 
-  private node !: HTMLCanvasElement;
-  private context !: CanvasRenderingContext2D;
+  public node !: HTMLCanvasElement;
+  public context !: CanvasRenderingContext2D;
   private canvasOptions !: ICanvasOptions;
 
   public canvasEventListener !: CanvasEventListener;
@@ -15,12 +15,12 @@ export class CanvasSystem {
   public const = {
     TRANSFORM_SCALE_STEP: 0.1,
     TRANSFORM_SCALE_MAX: 5,
-    TRANSFORM_SCALE_MIN: 1,
+    TRANSFORM_SCALE_MIN: 0.5,
     GRID: {
-      SIZE: 10,
+      SIZE: 20,
     },
-    MAX_GRID_COLUMN: 20,//画布最大网格列数
-    MAX_GRID_ROW: 20,    //画布最大网格行数
+    MAX_GRID_COLUMN: 100,//画布最大网格列数
+    MAX_GRID_ROW: 100,    //画布最大网格行数
   }
 
   private constructor(canvas: HTMLCanvasElement, options: ICanvasSystemOptions<AspectRatio>) {
@@ -49,7 +49,7 @@ export class CanvasSystem {
     canvas.style.background = this.canvasOptions.background ?? "#ffffff";
     const { left, top } = canvas.getBoundingClientRect();
     this.canvasEventListener = new CanvasEventListener(this.node, { x: left, y: top }, this);
-    this.canvasTransform = new CanvasTransform(this, { screenColumn, screenRow, width: this.const.MAX_GRID_COLUMN, height: this.const.MAX_GRID_ROW });
+    this.canvasTransform = new CanvasTransform(this, { width: this.const.MAX_GRID_COLUMN, height: this.const.MAX_GRID_ROW });
     this.cavnasCoordinate = new CavnasCoordinate();
     this.render();
   }

@@ -14,7 +14,7 @@ export default defineConfig({
     rollupOptions: rollUpOptions
   },
   server: {
-    port: 3000,
+    port: 8000,
     host: "0.0.0.0"
   }
 })

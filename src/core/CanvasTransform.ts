@@ -8,7 +8,7 @@ export class CanvasTransform {
 
   private canvasSystem !: CanvasSystem;
 
-  constructor(canvasSystem: CanvasSystem, private boundary: { screenColumn: number, screenRow: number } & BaseSizeOption) {
+  constructor(canvasSystem: CanvasSystem, private boundary: BaseSizeOption) {
     this.canvasSystem = canvasSystem;
     this.transform = {
       translation: { x: 0, y: 0 },
@@ -61,8 +61,12 @@ export class CanvasTransform {
     if (translation.x > 0) translation.x = 0;
     if (translation.y > 0) translation.y = 0;
     const gridSize = this.canvasSystem.const.GRID.SIZE * this.transform.scale;
-    const mx = (this.boundary.width - this.boundary.screenColumn) * gridSize;
-    const my = (this.boundary.height - this.boundary.screenRow) * gridSize;
+    let screenColumn = Math.floor(this.canvasSystem.node.width / gridSize);
+    let screenRow = Math.floor(this.canvasSystem.node.height / gridSize);
+    let diffScreenColumn = this.canvasSystem.node.width - screenColumn * gridSize;
+    let diffScreenRow = this.canvasSystem.node.height - screenRow * gridSize;
+    const mx = (screenColumn - this.boundary.width) * gridSize + diffScreenColumn;
+    const my = (screenRow - this.boundary.height) * gridSize + diffScreenRow;
     if (translation.x < mx) translation.x = mx;
     if (translation.y < my) translation.y = my;
     return translation;
